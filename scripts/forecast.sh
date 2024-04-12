@@ -93,7 +93,7 @@ get_forecast() {
         ["x/"]="#[fg=$color_snowy]"
         ["*"]="#[fg=$color_snowy]"
         ["*/"]="#[fg=$color_snowy]"
-        ["m"]="#[fg=$color_default]"
+        ["m"]="#[fg=$color_cloudy]"
         ["o"]="#[fg=$color_sunny]"
         ["/!/"]="#[fg=$color_stormy]"
         ["!/"]="#[fg=$color_stormy]"
@@ -107,20 +107,18 @@ get_cached_forecast() {
 	local cache_path=$(get_tmux_option @tinyweather-cache-path "/tmp/tmux-weather.cache") # where to store the cached data
 	local cache_age=$(get_file_age "$cache_path")
 	local forecast
-	# if [ $cache_duration -gt 0 ]; then # Cache enabled branch
-	# 	# if file does not exist or cache age is greater then configured duration
-	# 	if ! [ -f "$cache_path" ] || [ $cache_age -ge $cache_duration ]; then
-	# 		forecast=$(get_forecast)
-	# 		# store forecast in $cache_path
-	# 		mkdir -p "$(dirname "$cache_path")"
-	# 		echo "$forecast" >"$cache_path"
-	# 	else
-	# 		# otherwise try to get it from cache file
-	# 		forecast=$(cat "$cache_path" 2>/dev/null)
-	# 	fi
-	# else # Cache disabled branch
+	if [ $cache_duration -gt 0 ]; then # Cache enabled branch
+		if ! [ -f "$cache_path" ] || [ $cache_age -ge $cache_duration ]; then
+			forecast=$(get_forecast)
+			# store forecast in $cache_path
+			mkdir -p "$(dirname "$cache_path")"
+			echo "$forecast" >"$cache_path"
+		else
+			forecast=$(cat "$cache_path" 2>/dev/null)
+		fi
+	else # Cache disabled branch
 		forecast=$(get_forecast)
-	# fi
+	fi
 	echo "$forecast"
 }
 
