@@ -15,12 +15,91 @@ get_forecast() {
     local color_stormy=$(get_tmux_option @tinyweather-color-stormy "#ffaa00")
     local color_default=$(get_tmux_option @tinyweather-color-default "#ff0000")
 
-    local weather_string=$(curl -s -H "Accepted-Language: $language" "v2d.wttr.in/$location" | grep "Weather:" | cut -d "," -f 1,2 | tr ' ' '\n' | awk 'NR == 2 {print $1} END {print $1}' | awk '{ printf "%s  ", $0 }')
-    local weather_unicode=$(echo $weather_string | awk '{print $1" "}')
-    local temperature_string=$(echo $weather_string | awk '{print $2}')
+    local weather_string=$(curl -s -H "Accepted-Language: $language" "wttr.in/$location?format=%x,%t" | cut -d "," -f 1,2 | tr "," "\n")
+    local weather_type=$(echo "$weather_string" | awk 'NR==1')
+    local temperature_string=$(echo "$weather_string" | awk 'NR==2')
 
-    declare -A dict_weather_color=( [""]="#[fg=$color_default]" [" "]="#[fg=$color_cloudy]" [" "]="#[fg=$color_cloudy]" [" "]="#[fg=$color_rainny]" [" "]="#[fg=$color_rainny]" [" "]="#[fg=$color_snowy]" [" "]="#[fg=$color_snowy]" [" "]="#[fg=$color_rainny]" [" "]="#[fg=$color_snowy]" [" "]="#[fg=$color_snowy]" [" "]="#[fg=$color_default]" [" "]="#[fg=$color_snowy]" [" "]="#[fg=$color_snowy]" [" "]="#[fg=$color_sunny]" [" "]="#[fg=$color_sunny]" [" "]="#[fg=$color_stormy]" [" "]="#[fg=$color_stormy]" [" "]="#[fg=$color_stormy]" [" "]="#[fg=$color_cloudy]" )
-    echo "${dict_weather_color[$weather_unicode]}$weather_unicode #[fg=$color_default] $temperature_string"
+    # "Unknown":             "",
+    # "Cloudy":              "",
+    # "Fog":                 "",
+    # "HeavyRain":           "",
+    # "HeavyShowers":        "",
+    # "HeavySnow":           "",
+    # "HeavySnowShowers":    "",
+    # "LightRain":           "",
+    # "LightShowers":        "",
+    # "LightSleet":          "",
+    # "LightSleetShowers":   "",
+    # "LightSnow":           "",
+    # "LightSnowShowers":    "",
+    # "PartlyCloudy":        "",
+    # "Sunny":               "",
+    # "ThunderyHeavyRain":   "",
+    # "ThunderyShowers":     "",
+    # "ThunderySnowShowers": "",
+    #
+    # "Unknown":             "?",
+    # "Cloudy":              "mm",
+    # "Fog":                 "=",
+    # "HeavyRain":           "///",
+    # "HeavyShowers":        "//",
+    # "HeavySnow":           "**",
+    # "HeavySnowShowers":    "*/*",
+    # "LightRain":           "/",
+    # "LightShowers":        ".",
+    # "LightSleet":          "x",
+    # "LightSleetShowers":   "x/",
+    # "LightSnow":           "*",
+    # "LightSnowShowers":    "*/",
+    # "PartlyCloudy":        "m",
+    # "Sunny":               "o",
+    # "ThunderyHeavyRain":   "/!/",
+    # "ThunderyShowers":     "!/",
+    # "ThunderySnowShowers": "*!*",
+    # "VeryCloudy": "mmm",
+
+    declare -A dict_weather_symbol=(
+        ["?"]=""
+        ["mm"]="󰖐"
+        ["="]="󰖑"
+        ["///"]="󰖖"
+        ["//"]="󰖗"
+        ["**"]="󰼶"
+        ["*/*"]="󰙿"
+        ["/"]="󰼳"
+        ["."]="󰼳"
+        ["x"]="󰼴"
+        ["x/"]="󰼵"
+        ["*"]="󰼴"
+        ["*/"]="󰼵"
+        ["m"]=""
+        ["o"]="󰖙"
+        ["/!/"]="󰙾"
+        ["!/"]="󰖓"
+        ["*!*"]="󰖒"
+    )
+
+    declare -A dict_weather_color=(
+        ["?"]="#[fg=$color_default]"
+        ["mm"]="#[fg=$color_cloudy]"
+        ["="]="#[fg=$color_cloudy]"
+        ["///"]="#[fg=$color_rainny]"
+        ["//"]="#[fg=$color_rainny]"
+        ["**"]="#[fg=$color_snowy]"
+        ["*/*"]="#[fg=$color_snowy]"
+        ["/"]="#[fg=$color_rainny]"
+        ["."]="#[fg=$color_rainny]"
+        ["x"]="#[fg=$color_snowy]"
+        ["x/"]="#[fg=$color_snowy]"
+        ["*"]="#[fg=$color_snowy]"
+        ["*/"]="#[fg=$color_snowy]"
+        ["m"]="#[fg=$color_default]"
+        ["o"]="#[fg=$color_sunny]"
+        ["/!/"]="#[fg=$color_stormy]"
+        ["!/"]="#[fg=$color_stormy]"
+        ["*!*"]="#[fg=$color_stormy]"
+    )
+    echo "${dict_weather_color[$weather_type]}${dict_weather_symbol[$weather_type]} #[fg=$color_default]$temperature_string"
 }
 
 get_cached_forecast() {
@@ -28,20 +107,20 @@ get_cached_forecast() {
 	local cache_path=$(get_tmux_option @tinyweather-cache-path "/tmp/tmux-weather.cache") # where to store the cached data
 	local cache_age=$(get_file_age "$cache_path")
 	local forecast
-	if [ $cache_duration -gt 0 ]; then # Cache enabled branch
-		# if file does not exist or cache age is greater then configured duration
-		if ! [ -f "$cache_path" ] || [ $cache_age -ge $cache_duration ]; then
-			forecast=$(get_forecast)
-			# store forecast in $cache_path
-			mkdir -p "$(dirname "$cache_path")"
-			echo "$forecast" >"$cache_path"
-		else
-			# otherwise try to get it from cache file
-			forecast=$(cat "$cache_path" 2>/dev/null)
-		fi
-	else # Cache disabled branch
+	# if [ $cache_duration -gt 0 ]; then # Cache enabled branch
+	# 	# if file does not exist or cache age is greater then configured duration
+	# 	if ! [ -f "$cache_path" ] || [ $cache_age -ge $cache_duration ]; then
+	# 		forecast=$(get_forecast)
+	# 		# store forecast in $cache_path
+	# 		mkdir -p "$(dirname "$cache_path")"
+	# 		echo "$forecast" >"$cache_path"
+	# 	else
+	# 		# otherwise try to get it from cache file
+	# 		forecast=$(cat "$cache_path" 2>/dev/null)
+	# 	fi
+	# else # Cache disabled branch
 		forecast=$(get_forecast)
-	fi
+	# fi
 	echo "$forecast"
 }
 
