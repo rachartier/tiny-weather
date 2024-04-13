@@ -15,9 +15,11 @@ get_forecast() {
     local color_stormy=$(get_tmux_option @tinyweather-color-stormy "#ffaa00")
     local color_default=$(get_tmux_option @tinyweather-color-default "#ff0000")
 
-    local weather_string=$(curl -s -H "Accepted-Language: $language" "wttr.in/$location?format=%x,%t" | cut -d "," -f 1,2 | tr "," "\n")
+    local weather_string=$(curl -s -H "Accepted-Language: $language" "wttr.in/$location?format=%x,%t,%s,%S" | cut -d "," -f 1,2,3,4 | tr "," "\n")
     local weather_type=$(echo "$weather_string" | awk 'NR==1')
     local temperature_string=$(echo "$weather_string" | awk 'NR==2')
+    local sunset=$(echo "$weather_string" | awk 'NR==3')
+    local sunrise=$(echo "$weather_string" | awk 'NR==4')
 
     # "Unknown":             "",
     # "Cloudy":              "",
@@ -58,7 +60,7 @@ get_forecast() {
     # "ThunderySnowShowers": "*!*",
     # "VeryCloudy": "mmm",
 
-    declare -A dict_weather_symbol=(
+    declare -A dict_weather_symbol_day=(
         ["?"]=""
         ["mm"]="󰖐"
         ["="]="󰖑"
@@ -79,7 +81,29 @@ get_forecast() {
         ["*!*"]="󰖒"
     )
 
-    declare -A dict_weather_color=(
+    declare -A dict_weather_symbol_night=(
+        ["?"]=""
+        ["mm"]="󰖐"
+        ["="]="󰖑"
+        ["///"]="󰖖"
+        ["//"]="󰖗"
+        ["**"]="󰼶"
+        ["*/*"]="󰙿"
+        ["/"]="󰼳"
+        ["."]="󰼳"
+        ["x"]="󰼴"
+        ["x/"]="󰼵"
+        ["*"]="󰼴"
+        ["*/"]="󰼵"
+        ["m"]="󰼱"
+        ["o"]="󰖔"
+        ["/!/"]="󰙾"
+        ["!/"]="󰖓"
+        ["*!*"]="󰖒"
+    )
+
+
+    declare -A dict_weather_color_day=(
         ["?"]="#[fg=$color_default]"
         ["mm"]="#[fg=$color_cloudy]"
         ["="]="#[fg=$color_cloudy]"
@@ -99,7 +123,36 @@ get_forecast() {
         ["!/"]="#[fg=$color_stormy]"
         ["*!*"]="#[fg=$color_stormy]"
     )
-    echo "${dict_weather_color[$weather_type]}${dict_weather_symbol[$weather_type]} #[fg=$color_default]$temperature_string"
+    declare -A dict_weather_color_night=(
+        ["?"]="#[fg=$color_default]"
+        ["mm"]="#[fg=$color_cloudy]"
+        ["="]="#[fg=$color_cloudy]"
+        ["///"]="#[fg=$color_rainny]"
+        ["//"]="#[fg=$color_rainny]"
+        ["**"]="#[fg=$color_snowy]"
+        ["*/*"]="#[fg=$color_snowy]"
+        ["/"]="#[fg=$color_rainny]"
+        ["."]="#[fg=$color_rainny]"
+        ["x"]="#[fg=$color_snowy]"
+        ["x/"]="#[fg=$color_snowy]"
+        ["*"]="#[fg=$color_snowy]"
+        ["*/"]="#[fg=$color_snowy]"
+        ["m"]="#[fg=$color_cloudy]"
+        ["o"]="#[fg=$color_cloudy]"
+        ["/!/"]="#[fg=$color_stormy]"
+        ["!/"]="#[fg=$color_stormy]"
+        ["*!*"]="#[fg=$color_stormy]"
+    )
+
+    local actual_date="$(date '+%H:%M:%S')"
+
+    if [[ "$actual_date" > "$sunset" ]] || [[ "$actual_date" < "$sunrise" ]]; then
+        echo "${dict_weather_color_night[$weather_type]}${dict_weather_symbol_night[$weather_type]} #[fg=$color_default]$temperature_string"
+    else
+        echo "${dict_weather_color_day[$weather_type]}${dict_weather_symbol_day[$weather_type]} #[fg=$color_default]$temperature_string"
+    fi
+
+
 }
 
 get_cached_forecast() {
