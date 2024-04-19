@@ -63,6 +63,7 @@ get_forecast() {
 	declare -A dict_weather_symbol_day=(
 		["?"]=""
 		["mm"]="󰖐"
+		["mmm"]="󰖐"
 		["="]="󰖑"
 		["///"]="󰖖"
 		["//"]="󰖗"
@@ -84,6 +85,7 @@ get_forecast() {
 	declare -A dict_weather_symbol_night=(
 		["?"]=""
 		["mm"]="󰖐"
+		["mmm"]="󰖐"
 		["="]="󰖑"
 		["///"]="󰖖"
 		["//"]="󰖗"
@@ -105,6 +107,7 @@ get_forecast() {
 	declare -A dict_weather_color_day=(
 		["?"]="#[fg=$color_default]"
 		["mm"]="#[fg=$color_cloudy]"
+		["mmm"]="#[fg=$color_cloudy]"
 		["="]="#[fg=$color_cloudy]"
 		["///"]="#[fg=$color_rainny]"
 		["//"]="#[fg=$color_rainny]"
@@ -125,6 +128,7 @@ get_forecast() {
 	declare -A dict_weather_color_night=(
 		["?"]="#[fg=$color_default]"
 		["mm"]="#[fg=$color_cloudy]"
+		["mmm"]="#[fg=$color_cloudy]"
 		["="]="#[fg=$color_cloudy]"
 		["///"]="#[fg=$color_rainny]"
 		["//"]="#[fg=$color_rainny]"
@@ -144,6 +148,8 @@ get_forecast() {
 	)
 
 	local actual_date="$(date '+%H:%M:%S')"
+
+	echo "${dict_weather_symbol_night}[$weather_type]"
 
 	if [[ "$actual_date" > "$sunset" ]] || [[ "$actual_date" < "$sunrise" ]]; then
 		echo "${dict_weather_color_night[$weather_type]}${dict_weather_symbol_night[$weather_type]} #[fg=$color_default]$temperature_string"
