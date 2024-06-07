@@ -1,16 +1,20 @@
-# tiny-weather :cloud:
+# :cloud: tiny-weather
 
 A tmux plugin to display weather information in your tmux status line.
 
-## Getting Started :rocket:
+Example:
 
-### Prerequisites :clipboard:
+![image](https://github.com/rachartier/tiny-weather/assets/2057541/4e612cb1-1de4-4603-8427-d69a70830513)
 
-What things you need to install the software and how to install them
 
-- tmux version 2.1 or higher
+With city:
 
-#### Installing Manually :wrench:
+![image](https://github.com/rachartier/tiny-weather/assets/2057541/bb01019e-bbde-4ec8-b4c8-d38c7e643442)
+
+
+## :rocket: Getting Started 
+
+### :wrench: Installing Manually
 
 1. Clone the repo to your local machine
 ```sh
@@ -25,7 +29,7 @@ run-shell ~/.tmux/plugins/tiny-weather/tinyweather.tmux
 tmux source-file ~/.tmux.conf
 ```
 
-#### Installing with TPM (Tmux Plugin Manager) :package:
+### :package: Installing with TPM (Tmux Plugin Manager) 
 
 If you're using [Tmux Plugin Manager](https://github.com/tmux-plugins/tpm), you can install tiny-weather with the following steps:
 
@@ -37,7 +41,7 @@ set -g @plugin 'user/tiny-weather'
 
 Now, tiny-weather should be installed and you should be able to see the weather information in your tmux status line.
 
-### Configuration :gear:
+### :gear: Configuration
 
 You can customize the behavior of tiny-weather by setting the following options in your `.tmux.conf` file:
 
@@ -69,7 +73,7 @@ set -g @tinyweather-color-sunny "#FFFF00"
 set -g @tinyweather-color-rainny"#0000FF"
 ```
 
-### Usage :computer:
+## :computer: Usage
 
 Once installed and configured, tiny-weather will automatically display weather information in your tmux status line. The weather information is updated according to the cache duration you set.
 
