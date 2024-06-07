@@ -7,6 +7,7 @@ source "$CURRENT_DIR/helpers.sh"
 get_forecast() {
 	local language=$(get_tmux_option @tinyweather-language "en")
 	local location=$(get_tmux_option @tinyweather-location "")
+	local include_city=$(get_tmux_option @tinyweather-include-city false)
 
 	local color_sunny=$(get_tmux_option @tinyweather-color-sunny "#ffff00")
 	local color_cloudy=$(get_tmux_option @tinyweather-color-cloudy "#aaaaaa")
@@ -15,11 +16,12 @@ get_forecast() {
 	local color_stormy=$(get_tmux_option @tinyweather-color-stormy "#ffaa00")
 	local color_default=$(get_tmux_option @tinyweather-color-default "#ff0000")
 
-	local weather_string=$(curl -s -H "Accepted-Language: $language" "wttr.in/$location?format=%x,%t,%s,%S" | cut -d "," -f 1,2,3,4 | tr "," "\n")
+	local weather_string=$(curl -s -H "Accepted-Language: $language" "wttr.in/$location?format=%x,%t,%s,%S,%l" | cut -d "," -f 1,2,3,4,5 | tr "," "\n")
 	local weather_type=$(echo "$weather_string" | awk 'NR==1')
 	local temperature_string=$(echo "$weather_string" | awk 'NR==2')
 	local sunset=$(echo "$weather_string" | awk 'NR==3')
 	local sunrise=$(echo "$weather_string" | awk 'NR==4')
+	local city=$(echo "$weather_string" | awk 'NR==5')
 
 	# "Unknown":             "",
 	# "Cloudy":              "",
@@ -149,31 +151,33 @@ get_forecast() {
 
 	local actual_date="$(date '+%H:%M:%S')"
 
-	echo "${dict_weather_symbol_night}[$weather_type]"
+	if [ "$include_city" = true ]; then
+		echo -n "$city: "
+	fi
 
 	if [[ "$actual_date" > "$sunset" ]] || [[ "$actual_date" < "$sunrise" ]]; then
 		echo "${dict_weather_color_night[$weather_type]}${dict_weather_symbol_night[$weather_type]} #[fg=$color_default]$temperature_string"
 	else
 		echo "${dict_weather_color_day[$weather_type]}${dict_weather_symbol_day[$weather_type]} #[fg=$color_default]$temperature_string"
 	fi
-
 }
 
 get_cached_forecast() {
-	local cache_duration=$(get_tmux_option @tinyweather-cache-duration 0)                 # in seconds, by default cache is disabled
-	local cache_path=$(get_tmux_option @tinyweather-cache-path "/tmp/tiny-weather.cache") # where to store the cached data
+	local cache_duration=$(get_tmux_option @tinyweather-cache-duration 0)
+	local cache_path=$(get_tmux_option @tinyweather-cache-path "/tmp/tiny-weather.cache")
 	local cache_age=$(get_file_age "$cache_path")
 	local forecast
-	if [ "$cache_duration" -gt 0 ]; then # Cache enabled branch
+
+	if [ "$cache_duration" -gt 0 ]; then
 		if ! [ -f "$cache_path" ] || [ "$cache_age" -ge "$cache_duration" ]; then
 			forecast=$(get_forecast)
-			# store forecast in $cache_path
+
 			mkdir -p "$(dirname "$cache_path")"
 			echo "$forecast" >"$cache_path"
 		else
 			forecast=$(cat "$cache_path" 2>/dev/null)
 		fi
-	else # Cache disabled branch
+	else
 		forecast=$(get_forecast)
 	fi
 	echo "$forecast"
