@@ -49,6 +49,8 @@ You can customize the behavior of tiny-weather by setting the following options 
 - `@tinyweather-location` - Location for the weather forecast. Default is empty.
 - `@tinyweather-cache-duration` - Duration of the cache in seconds. Default is 0 (cache disabled).
 - `@tinyweather-cache-path` - Path to store the cache data. Default is "/tmp/tiny-weather.cache".
+- `@tinyweather-include-city` - Includes the city name (true/false). Default is false.
+- `@tinyweather-char-limit` - Set a limit to the number of characters displayed. Default is 75.
 
 For example, to set the language to French and the location to Paris, you would add the following lines to your `.tmux.conf`:
 
