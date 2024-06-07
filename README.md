@@ -75,6 +75,12 @@ set -g @tinyweather-color-sunny "#FFFF00"
 set -g @tinyweather-color-rainny"#0000FF"
 ```
 
+Now you can set the status:
+
+```sh
+set -g status-right "#{tinyweather}"
+```
+
 ## :computer: Usage
 
 Once installed and configured, tiny-weather will automatically display weather information in your tmux status line. The weather information is updated according to the cache duration you set.
