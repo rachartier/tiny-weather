@@ -14,6 +14,8 @@ With city:
 
 ## :rocket: Getting Started 
 
+You need to have a nerd font !
+
 ### :wrench: Installing Manually
 
 1. Clone the repo to your local machine
