@@ -39,9 +39,7 @@ If you're using [Tmux Plugin Manager](https://github.com/tmux-plugins/tpm), you 
 ```sh
 set -g @plugin 'user/tiny-weather'
 ```
-2. Press `prefix + I` (capital i, as in **I**nstall) to fetch and install tiny-weather.
-
-Now, tiny-weather should be installed and you should be able to see the weather information in your tmux status line.
+2. Press `prefix + I` ' to fetch and install tiny-weather.
 
 ### :gear: Configuration
 
