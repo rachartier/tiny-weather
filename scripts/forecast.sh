@@ -172,8 +172,15 @@ get_cached_forecast() {
 		if ! [ -f "$cache_path" ] || [ "$cache_age" -ge "$cache_duration" ]; then
 			forecast=$(get_forecast)
 
-			mkdir -p "$(dirname "$cache_path")"
-			echo "$forecast" >"$cache_path"
+			if mkdir -p "$(dirname "$cache_path")"; then
+				if echo "$forecast" >"$cache_path"; then
+					: # Successfully wrote forecast to cache
+				else
+					echo "Error writing forecast to cache file." >&2
+				fi
+			else
+				echo "Error creating cache directory." >&2
+			fi
 		else
 			forecast=$(cat "$cache_path" 2>/dev/null)
 		fi
