@@ -6,7 +6,6 @@ source "$CURRENT_DIR/helpers.sh"
 
 get_forecast() {
 	local language=$(get_tmux_option @tinyweather-language "en")
-	local location=$(get_tmux_option @tinyweather-location "")
 
 	local color_sunny=$(get_tmux_option @tinyweather-color-sunny "#ffff00")
 	local color_cloudy=$(get_tmux_option @tinyweather-color-cloudy "#aaaaaa")
@@ -15,7 +14,11 @@ get_forecast() {
 	local color_stormy=$(get_tmux_option @tinyweather-color-stormy "#ffaa00")
 	local color_default=$(get_tmux_option @tinyweather-color-default "#ff0000")
 
-	local weather_string=$(curl -s -H "Accepted-Language: $language" "wttr.in/$location?format=%x,%t,%s,%S" | cut -d "," -f 1,2,3,4 | tr "," "\n")
+	local coord=$(curl -s https://ipinfo.io/loc)
+	local lat=$(echo $coord | cut -d ',' -f 1)
+	local lon=$(echo $coord | cut -d ',' -f 2)
+
+	local weather_string=$(curl -s -H "Accepted-Language: $language" "wttr.in/${lat},${lon}?format=%x,%t,%s,%S" | cut -d "," -f 1,2,3,4 | tr "," "\n")
 	local weather_type=$(echo "$weather_string" | awk 'NR==1')
 	local temperature_string=$(echo "$weather_string" | awk 'NR==2')
 	local sunset=$(echo "$weather_string" | awk 'NR==3')
