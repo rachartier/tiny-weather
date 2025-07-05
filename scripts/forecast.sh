@@ -5,8 +5,8 @@ source "$CURRENT_DIR/helpers.sh"
 
 # Location helpers
 get_lat_lon() {
-    local lat=$(get_tmux_option @tinyweather-latitude "")
-    local lon=$(get_tmux_option @tinyweather-longitude "")
+    local lat=$(get_tmux_option @tinyweather-lat "")
+    local lon=$(get_tmux_option @tinyweather-lon "")
     if [ -z "$lat" ] || [ -z "$lon" ]; then
         local coord=$(curl -s https://ipinfo.io/loc)
         lat=$(echo "$coord" | cut -d',' -f1)
@@ -58,7 +58,7 @@ get_weather_emoji() {
     99) emoji="" ;;
     *) emoji="" ;;
     esac
-    if [ "$is_day" -eq 0 ]; then
+    if [ "$is_day" = "0" ]; then
         case $wmo_code in
         0) emoji="" ;;
         1) emoji="" ;;
@@ -134,7 +134,7 @@ get_weather_color() {
         ["clear"]="#[fg=$color_cloudy]"
         ["thunderstorm"]="#[fg=$color_stormy]"
     )
-    if [ "$is_day" -eq 0 ]; then
+    if [ "$is_day" = "0" ]; then
         echo "${dict_weather_color_night[$color_key]}"
     else
         echo "${dict_weather_color_day[$color_key]}"
