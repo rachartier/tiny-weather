@@ -28,11 +28,11 @@ get_weather_emoji() {
     local is_day="$2"
     local emoji="?"
     case $wmo_code in
-    0) emoji="" ;;
+    0) emoji="󰖙" ;;
     1) emoji="" ;;
-    2) emoji="" ;;
+    2) emoji="󰖐" ;;
     3) emoji="" ;;
-    45) emoji="" ;;
+    45) emoji="󰖑" ;;
     48) emoji="" ;;
     51) emoji="" ;;
     53) emoji="" ;;
