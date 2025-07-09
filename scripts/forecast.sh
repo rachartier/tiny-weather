@@ -60,14 +60,14 @@ get_weather_emoji() {
     esac
     if [ "$is_day" = "0" ]; then
         case $wmo_code in
-        0) emoji=" " ;;
-        1) emoji=" " ;;
-        51) emoji=" " ;;
-        53) emoji=" " ;;
-        55) emoji=" " ;;
-        56) emoji=" " ;;
-        57) emoji=" " ;;
-        61) emoji=" " ;;
+        0) emoji="" ;;
+        1) emoji="" ;;
+        51) emoji="" ;;
+        53) emoji="" ;;
+        55) emoji="" ;;
+        56) emoji="" ;;
+        57) emoji="" ;;
+        61) emoji="" ;;
         esac
     fi
     echo "$emoji"
